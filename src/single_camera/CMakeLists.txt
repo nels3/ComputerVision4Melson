@@ -25,8 +25,11 @@ find_package(image_transport REQUIRED)
 find_package(camera_info_manager REQUIRED)
 find_package(OpenCV REQUIRED)
 
-add_executable(single_camera src/single_camera.cpp)
-ament_target_dependencies(single_camera 
+add_executable(camera_publisher src/camera_publisher.cpp)
+add_executable(camera_subscriber src/camera_subscriber.cpp)
+
+ament_target_dependencies( 
+  camera_publisher
   "rclcpp"
   "rclcpp_components"
   "sensor_msgs"
@@ -34,9 +37,18 @@ ament_target_dependencies(single_camera
   "image_transport"
   "camera_info_manager"
   "OpenCV")
+ 
+ament_target_dependencies( 
+  camera_subscriber
+  "rclcpp"
+  "rclcpp_components"
+  "sensor_msgs"
+  "cv_bridge"
+  "OpenCV")
 
 install(TARGETS
-     single_camera
+     camera_publisher
+     camera_subscriber
      DESTINATION lib/${PROJECT_NAME}
 )
 # uncomment the following section in order to fill in

@@ -1,10 +1,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <opencv2/videoio.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.hpp>
 #include <camera_info_manager/camera_info_manager.hpp>
 
+#define CAMERA_WIDTH 640
+#define CAMERA_HEIGHT 480
 
 class CameraNode : public rclcpp::Node{
 public:
