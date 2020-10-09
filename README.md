@@ -1,6 +1,6 @@
 # ComputerVision4Melson
 
-ROS2 + opencv
+ROS2/foxy + opencv
 
 ## Content:
 
