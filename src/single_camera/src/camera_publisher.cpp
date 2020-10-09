@@ -22,7 +22,7 @@ public:
          get_parameter<int>("device", device);
          get_parameter<int>("width", width);
          get_parameter<int>("height", height);
-         get_parameter<int>("height", leave_original_image);
+         get_parameter<int>("leave_original_image", leave_original_image);
          
          RCLCPP_INFO(this->get_logger(), "Trying connecting to camera with id: %d.", device);
          
