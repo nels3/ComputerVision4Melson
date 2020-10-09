@@ -11,9 +11,32 @@
 class CameraNode : public rclcpp::Node{
 public:
     CameraNode() : Node("SingleCameraNode"){
+         this->declare_parameter<int>("device", 0);
+         this->declare_parameter<int>("leave_original_image", 0);
+         this->declare_parameter<int>("width", CAMERA_WIDTH);
+         this->declare_parameter<int>("height", CAMERA_HEIGHT);
          
-         int device = 0;
+         int device;
+         int width, height;
+         int leave_original_image;
+         get_parameter<int>("device", device);
+         get_parameter<int>("width", width);
+         get_parameter<int>("height", height);
+         get_parameter<int>("height", leave_original_image);
+         
+         RCLCPP_INFO(this->get_logger(), "Trying connecting to camera with id: %d.", device);
+         
          cap.open(device, cv::CAP_ANY);
+         
+         if (!leave_original_image){
+            RCLCPP_INFO(this->get_logger(), "Setting image parameters: height = %d, width = %d", width, height);
+            cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
+            cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
+         }else{
+            RCLCPP_INFO(this->get_logger(), "Leaving original image parametets");
+         }
+         
+         
          if (!cap.isOpened()) {
             throw std::runtime_error("Could not open video stream!");
          }else{
