@@ -30,12 +30,13 @@ public:
          
          RCLCPP_INFO(this->get_logger(), "Trying connecting to camera with id: %d.", device);
          
-         cap.open(device, cv::CAP_ANY);
+         cap.open(device, cv::CAP_V4L2);
          
          if (!leave_original_image){
             RCLCPP_INFO(this->get_logger(), "Setting image parameters: height = %d, width = %d", width, height);
             cap.set(cv::CAP_PROP_FRAME_WIDTH, static_cast<double>(width));
             cap.set(cv::CAP_PROP_FRAME_HEIGHT, static_cast<double>(height));
+            
          }else{
             RCLCPP_INFO(this->get_logger(), "Leaving original image parametets");
          }
@@ -59,12 +60,15 @@ public:
     }
 
     void loop(){
+        rclcpp::WallRate loop_rate(10);
         while (rclcpp::ok()) {
           cap >> frame;
+          RCLCPP_INFO(this->get_logger(), "Loop");
           if (frame.empty()){  
              RCLCPP_INFO(this->get_logger(), "Frame empty");
-             continue; 
-          }
+             
+             //continue; 
+          }/*
 
           sensor_msgs::msg::CameraInfo::SharedPtr ci(new sensor_msgs::msg::CameraInfo(camera_info_manager->getCameraInfo()));
           ci->header.stamp = now();
@@ -72,7 +76,9 @@ public:
 
           sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(ci->header, "bgr8", frame).toImageMsg();
 
-          camera_pub.publish(msg, ci);
+          camera_pub.publish(msg, ci);*/
+          loop_rate.sleep();
+          
         }        
   }
   
