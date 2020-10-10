@@ -9,8 +9,9 @@ def generate_launch_description():
             executable='camera_publisher',
             name='camera_left',
             parameters=[
-                {"device": 2},
-                {"leave_original_image": 1}
+                {"device": 2,
+                "width":640,
+                "height":480}
             ]
         ),Node(
             package='single_camera',
@@ -18,8 +19,9 @@ def generate_launch_description():
             executable='camera_publisher',
             name='camera_right',
             parameters=[
-                {"device": 0},
-                {"leave_original_image": 1}
+                {"device": 0,
+                "width":640,
+                "height":480}
             ]
         )
     ])
