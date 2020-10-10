@@ -9,8 +9,13 @@ using std::placeholders::_1;
 class CameraSubscriberNode : public rclcpp::Node{
 public:
     CameraSubscriberNode() : Node("SingleCameraSubscriberNode"){
+         this->declare_parameter<std::string>("topic", "image");
+         
+         std::string topic;
+         get_parameter<std::string>("topic", topic);
+         
          image_sub = this->create_subscription<sensor_msgs::msg::Image>(
-      "image", 10, std::bind(&CameraSubscriberNode::camera_callback, this, _1));
+      topic , 10, std::bind(&CameraSubscriberNode::camera_callback, this, _1));
     }
 
     void camera_callback(const sensor_msgs::msg::Image::SharedPtr msg){

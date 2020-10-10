@@ -4,6 +4,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <image_transport/image_transport.hpp>
 #include <camera_info_manager/camera_info_manager.hpp>
+#include <string>
 
 #define CAMERA_WIDTH 640
 #define CAMERA_HEIGHT 480
@@ -15,13 +16,16 @@ public:
          this->declare_parameter<int>("leave_original_image", 0);
          this->declare_parameter<int>("width", CAMERA_WIDTH);
          this->declare_parameter<int>("height", CAMERA_HEIGHT);
+         this->declare_parameter<std::string>("topic", "image");
          
          int device;
          int width, height;
          int leave_original_image;
+         std::string topic;
          get_parameter<int>("device", device);
          get_parameter<int>("width", width);
          get_parameter<int>("height", height);
+         get_parameter<std::string>("topic", topic);
          get_parameter<int>("leave_original_image", leave_original_image);
          
          RCLCPP_INFO(this->get_logger(), "Trying connecting to camera with id: %d.", device);
@@ -43,7 +47,7 @@ public:
             RCLCPP_INFO(this->get_logger(), "Connected to camera!");
          }
          
-         camera_pub = image_transport::create_camera_publisher(this, "image", rmw_qos_profile_default);
+         camera_pub = image_transport::create_camera_publisher(this, topic, rmw_qos_profile_default);
          camera_info_manager = std::make_unique<camera_info_manager::CameraInfoManager>(this);
          
          // set width and height
