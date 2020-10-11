@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(control)
+project(custom_msg_and_srv)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -14,27 +14,23 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-find_package(custom_msg_and_srv REQUIRED)
+
+set(msg_files
+  "msg/Control.msg"
+)
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${msg_files}
+ )
+ ament_export_dependencies(rosidl_default_runtime)
+ 
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
- 
-add_executable(start_control src/start_signal_publisher.cpp)
-ament_target_dependencies( 
-  start_control
-  custom_msg_and_srv
-  "rclcpp")
- 
-install(TARGETS
-     start_control
-     DESTINATION lib/${PROJECT_NAME}
-)
-  
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
@@ -45,5 +41,5 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-  
+
 ament_package()
