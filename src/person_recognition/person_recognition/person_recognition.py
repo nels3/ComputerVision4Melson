@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from custom_msg_and_srv.msg import PersonFaceList
@@ -23,9 +24,14 @@ templatePath = "resources/logo_original.png"
 #TODO: move to params
 visualizeIteration = False
 drawLogoSearchWindow = False
-searchForLogo = True
+searchForLogo = False
+showImage = True
+
 
 class MyNode(Node):
+    main_player_detection_counter : int
+    main_player_name = "Kornelia"
+    
     class Rectangle():
         x:int
         y:int
@@ -49,11 +55,17 @@ class MyNode(Node):
 
     def __init__(self):
         super().__init__('PersonRecognition')
+        
+        self.main_player_detection_counter = 0    
+        self.main_player_detection_out = 0
+        
         self.image_sub = self.create_subscription(Image, 'image', self.listener_callback, 10)
-        self.person_face_list_pub = self.create_publisher(PersonFaceList, 'person/face/roi', 10)
-        self.image_pub = self.create_publisher(Image, 'person/face/image', 10)
+        self.person_face_list_pub = self.create_publisher(PersonFaceList, 'Person/Face/Roi', 10)
+        self.image_pub = self.create_publisher(Image, 'Person/Face/Image', 10)
+        self.main_player_detection_pub = self.create_publisher(Bool, 'Person/Face/Detection', 10)
 
         self.cv_bridge = CvBridge()
+        self.main_player_detection_msg = Bool()
 
         # Initialization of face recognition variables
         self.init_face_recognition()
@@ -68,11 +80,15 @@ class MyNode(Node):
 
         image = bridge.imgmsg_to_cv2(msg, 'bgr8')
 
-        image, person_face_list = self.recognize_face(image)
+        image, person_face_list, person_names_list = self.recognize_face(image)
+        
+        self.convert_result_to_main_player_detection(person_names_list)
+        
         self.publish_msgs(image, person_face_list)
-         
-        cv2.imshow("Output image", image)
-        cv2.waitKey(1)
+        
+        if showImage:
+            cv2.imshow("Output image", image)
+            cv2.waitKey(1)
 		
     def init_face_recognition(self):
         self.get_logger().info("Starting loading face detection resources")
@@ -233,7 +249,8 @@ class MyNode(Node):
         detections = self.detector.forward()
 		
         person_face_list = []
-
+        person_names_list = []
+        
         # Loop over the detections of faces
         for i in range(0, detections.shape[2]):
             confidence = detections[0, 0, i, 2]
@@ -283,12 +300,29 @@ class MyNode(Node):
                 
                 person_face_elem = self.pack_person_data_to_msg(name, face, logo)
                 person_face_list.append(person_face_elem)
+                person_names_list.append(name)
 		
-        return image, person_face_list
+        return image, person_face_list, person_names_list
+        
+    def convert_result_to_main_player_detection(self, person_names_detection_list: [str]):
+        
+        detected = 5 if self.main_player_name in person_names_detection_list else -2
+        self.main_player_detection_counter = self.main_player_detection_counter + detected
+        if self.main_player_detection_counter > 40:
+            self.main_player_detection_counter = 40
+        elif self.main_player_detection_counter < 0:
+            self.main_player_detection_counter = 0
+        
+        if self.main_player_detection_counter > 20:
+            self.main_player_detection_msg.data  = True
+        else:
+            self.main_player_detection_msg.data  = False
+                        
 	
     def publish_msgs(self, image, person_face_list):
         """ Publishing msgs """
         self.image_pub.publish(self.cv_bridge.cv2_to_imgmsg(image))
+        self.main_player_detection_pub.publish(self.main_player_detection_msg)
 
         person_face_list_msg = PersonFaceList()
         person_face_list_msg.list = person_face_list
