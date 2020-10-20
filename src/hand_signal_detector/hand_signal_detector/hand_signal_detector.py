@@ -9,9 +9,10 @@ import os
 import dlib
 import time
 
-showThresholds = True
-drawOnlyImportantInformation = True
-showImage = True
+# params that can be set from command
+showAll = False
+showThresholds = False
+showImage = False
 
 dir_path = "/home/nels/Desktop/ComputerVision4Melson/src/hand_signal_detector/resource/"
 detector_name = 'Hand_Detector.svm'
@@ -28,6 +29,10 @@ class MyNode(Node):
     prev_result: int
     
     detection_counter = 0
+    
+    showImage           # showing image with drawn data
+    showThresholds      # drawing threshold on image
+    showAll             # showing all information
     
     class Threshold():
         init = False
@@ -50,6 +55,14 @@ class MyNode(Node):
     
     def __init__(self):
         super().__init__('HandSignalDetector')
+        self.declare_parameter('showImage', showImage)
+        self.declare_parameter('showThresholds', showThresholds)
+        self.declare_parameter('showAll', showAll)
+        
+        self.showImage = self.get_parameter('showImage').value
+        self.showThresholds = self.get_parameter('showThresholds').value
+        self.showAll = self.get_parameter('showAll').value
+        
         self.init_hand_detector()
         self.image_sub = self.create_subscription(Image, 'image', self.listener_callback, 10)
         
@@ -72,7 +85,7 @@ class MyNode(Node):
         
         self.publish_msgs()
         
-        if showImage:
+        if self.showImage or self.showAll:
             cv2.imshow("Output image", image)
             cv2.waitKey(1)
             
@@ -119,7 +132,7 @@ class MyNode(Node):
             
             # Draw the bounding box
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            if not drawOnlyImportantInformation:
+            if self.showAll:
                 cv2.putText(frame, 'Hand Detected', (x1, y2+20), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0, 0, 255),2)
 	     
             # Calculate size of the hand.
@@ -165,20 +178,21 @@ class MyNode(Node):
                 self.detection_counter = 0
         
                     
-        if not drawOnlyImportantInformation and self.showThresholds:
+        if self.showAll or self.showThresholds:
 	        # Threshold marking
             cv2.line(frame, (self.threshold.left_x,0),(self.threshold.left_x, frame.shape[0]),(25,25,255), 1)
             cv2.line(frame, (self.threshold.right_x,0),(self.threshold.right_x, frame.shape[0]),(25,25,255), 1)
             cv2.line(frame, (0,self.threshold.middle_y),(frame.shape[1], self.threshold.middle_y),(25,25,255), 1)   
 	    
-        if not drawOnlyImportantInformation:
+        if self.showAll:
             # Display FPS and size of hand
             cv2.putText(frame, 'FPS: {:.2f}'.format(fps), (20, 20), cv2.FONT_HERSHEY_COMPLEX, 0.6, (0, 0, 255),1)
 
             # Computed information about hands
             cv2.putText(frame, f"Center: ({self.center_x},{self.center_y})", (400, 20), cv2.FONT_HERSHEY_COMPLEX, 0.6, (233, 100, 25))
-            	     
-        cv2.putText(frame, text, (220, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (33, 100, 185), 2)
+        
+        if self.showImage:   
+            cv2.putText(frame, text, (220, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (33, 100, 185), 2)
 
         return frame
       
