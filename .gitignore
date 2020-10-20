@@ -3,3 +3,4 @@ install/
 log/
 vision_opencv/
 image_pipeline/
+__pycache__/
