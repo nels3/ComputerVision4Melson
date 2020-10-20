@@ -21,7 +21,7 @@ min_confidence = 0.3
 
 templatePath = "resources/logo_original.png"
 
-#TODO: move to params
+#variables that can be set from command
 visualizeIteration = False
 drawLogoSearchWindow = False
 searchForLogo = False
@@ -31,6 +31,11 @@ showImage = True
 class MyNode(Node):
     main_player_detection_counter : int
     main_player_name = "Kornelia"
+    
+    visualizeIteration
+    drawLogoSearchWindow
+    searchForLogo
+    showImage
     
     class Rectangle():
         x:int
@@ -56,6 +61,16 @@ class MyNode(Node):
     def __init__(self):
         super().__init__('PersonRecognition')
         
+        self.declare_parameter('visualizeIteration', visualizeIteration)
+        self.declare_parameter('drawLogoSearchWindow', drawLogoSearchWindow)
+        self.declare_parameter('searchForLogo', searchForLogo)
+        self.declare_parameter('showImage', showImage)
+        
+        self.visualizeIteration = self.get_parameter('visualizeIteration').value
+        self.drawLogoSearchWindow = self.get_parameter('drawLogoSearchWindow').value
+        self.searchForLogo = self.get_parameter('searchForLogo').value
+        self.showImage = self.get_parameter('showImage').value
+        
         self.main_player_detection_counter = 0    
         self.main_player_detection_out = 0
         
@@ -71,7 +86,7 @@ class MyNode(Node):
         self.init_face_recognition()
 
         # Initialization of logo recodnition variables
-        if searchForLogo:
+        if self.searchForLogo:
             self.init_logo_finding_template()
 
     def listener_callback(self, msg):
@@ -86,7 +101,7 @@ class MyNode(Node):
         
         self.publish_msgs(image, person_face_list)
         
-        if showImage:
+        if self.showImage:
             cv2.imshow("Output image", image)
             cv2.waitKey(1)
 		
@@ -146,7 +161,7 @@ class MyNode(Node):
         height_im, width_im, channels_im = image.shape
         logo_roi = self.compute_roi_for_logo_recognition(face, height_im, width_im)
 		   
-        if drawLogoSearchWindow:
+        if self.drawLogoSearchWindow:
             cv2.rectangle(image, (logo_roi.x, logo_roi.y), (logo_roi.x+logo_roi.w, logo_roi.y+logo_roi.h), (255, 0, 0), 1)
 
         # Crop image for logo ROI
@@ -173,7 +188,7 @@ class MyNode(Node):
             (_, maxVal, _, maxLoc) = cv2.minMaxLoc(result)
 
             # Visualization of iteration
-            if visualizeIteration:
+            if self.visualizeIteration:
                 clone = np.dstack([edged, edged, edged])
                 cv2.rectangle(clone, (maxLoc[0], maxLoc[1]), (maxLoc[0] + self.template_width, maxLoc[1] + self.template_height), (0, 0, 255), 2)
 
@@ -293,7 +308,7 @@ class MyNode(Node):
                 face.h = int(endY - startY)
         
                 # Searching for logo under person face
-                if searchForLogo:
+                if self.searchForLogo:
                     logo, image = self.find_logo(image, gray, face)
                 else:
                     logo = None
