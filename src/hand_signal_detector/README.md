@@ -47,4 +47,6 @@ showAll         - bool - decides if all information should be drawn on image, de
 4) right down
 5) middle normal
 6) middle bigger
+7) left bigger
+8) right bigger
 

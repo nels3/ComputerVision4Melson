@@ -149,6 +149,11 @@ class MyNode(Node):
                 else:
                     text = "Dol lewy"
                     self.result = 3
+                    
+                if self.size > self.threshold.size_up:
+                    text = "Duze lewo"
+                    self.result = 7
+                    
             elif self.center_x > self.threshold.right_x:
                 if self.center_y < self.threshold.middle_y:
                     text = "Gora prawy"
@@ -156,6 +161,10 @@ class MyNode(Node):
                 else:
                     text = "Dol prawy"
                     self.result = 4
+                    
+                if self.size > self.threshold.size_up:
+                    text = "Duze prawo"
+                    self.result = 8
             else:
                 if self.size > self.threshold.size_up:
                     text = "Duze"
@@ -190,8 +199,9 @@ class MyNode(Node):
 
             # Computed information about hands
             cv2.putText(frame, f"Center: ({self.center_x},{self.center_y})", (400, 20), cv2.FONT_HERSHEY_COMPLEX, 0.6, (233, 100, 25))
+            cv2.putText(frame, f"Size: ({self.size})", (400, 40), cv2.FONT_HERSHEY_COMPLEX, 0.6, (233, 100, 25))
         
-        if self.showImage:   
+        if self.showImage or self.showAll:   
             cv2.putText(frame, text, (220, 30), cv2.FONT_HERSHEY_COMPLEX, 0.7, (33, 100, 185), 2)
 
         return frame
