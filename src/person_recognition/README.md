@@ -8,6 +8,7 @@ In progress / developing
 ROS2/foxy + opencv
 
 pip3 install imutils
+
 pip3 install scikit-learn==0.23.2
 
 Resources:
