@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
               'hand_signal_detector = hand_signal_detector.hand_signal_detector:main',
+              'hand_gesture_processor = hand_signal_detector.hand_gesture_processor:main',
         ],
     },
 )

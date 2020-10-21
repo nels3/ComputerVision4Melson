@@ -152,7 +152,7 @@ class MyNode(Node):
                     
                 if self.size > self.threshold.size_up:
                     text = "Duze lewo"
-                    self.result = 7
+                    self.result = 5
                     
             elif self.center_x > self.threshold.right_x:
                 if self.center_y < self.threshold.middle_y:
@@ -164,14 +164,14 @@ class MyNode(Node):
                     
                 if self.size > self.threshold.size_up:
                     text = "Duze prawo"
-                    self.result = 8
+                    self.result = 6
             else:
                 if self.size > self.threshold.size_up:
                     text = "Duze"
-                    self.result = 6
+                    self.result = 8
                 else:
                     text = "Srodek"
-                    self.result = 5
+                    self.result = 7
         
         # Latching result
         if self.result != 0:

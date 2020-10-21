@@ -20,6 +20,8 @@ resource/train_hand_detector.py - script that can train detector based on hand i
 
 hand_signal_detector - main computation of hand detections
 
+hand_gesture_processor - processor of hand position from hand_signal_detector 
+
 ## usage:
 
 ros2 run hand_signal_detector hand_signal_detector
@@ -45,8 +47,8 @@ showAll         - bool - decides if all information should be drawn on image, de
 2) left down
 3) right up
 4) right down
-5) middle normal
-6) middle bigger
-7) left bigger
-8) right bigger
+5) left bigger
+6) right bigger
+7) middle normal
+8) middle bigger
 
