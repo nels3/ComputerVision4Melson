@@ -19,13 +19,14 @@ Resources:
 5) face_detection_model
 6) .png file with logo  
 
-## Content:
+# Content:
 person_recognition - main computation of searching for KNR person on image
-usage:
+
+## usage:
 
 ros2 run person_recognition person_recognition
 
-additional params:
+## additional params:
 
 showImage             - bool - decides if image will be shown, default: True
 
@@ -42,11 +43,11 @@ usage:
 
 ros2 run person_recognition person_recognition --ros-args -p showImage:=False onlyNecessaryTask:=True
 
-input:
+## input msgs:
 
 /image : Image
 
-output:
+## output msgs:
 
 /Person/Face/Roi        : PersonFaceList    - list of Rectangles and name for each Face Detection
 
