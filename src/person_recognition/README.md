@@ -20,4 +20,36 @@ Resources:
 
 ## Content:
 person_recognition - main computation of searching for KNR person on image
+usage:
+
+ros2 run person_recognition person_recognition
+
+additional params:
+
+showImage             - bool - decides if image will be shown, default: True
+
+searchForLogo         - bool - decides if there will be doing searching logo on image, default: False
+
+drawLogoSearchWindow  - bool - will draw logo search window on image, default: False
+
+visualizeIteration    - bool - for debug - visualization of steps for logo search, default: False
+
+onlyNecessaryTask     - bool - for production - speeding up calculation by not visualizating things, 
+default: False
+
+usage:
+
+ros2 run person_recognition person_recognition --ros-args -p showImage:=False onlyNecessaryTask:=True
+
+input:
+
+/image : Image
+
+output:
+
+/Person/Face/Roi        : PersonFaceList    - list of Rectangles and name for each Face Detection
+
+/Person/Face/Image      : Image             - image with drawn result
+
+/Person/Face/Detection  : Bool              - gives information if main player is detected on image
 

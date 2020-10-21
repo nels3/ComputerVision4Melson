@@ -26,6 +26,7 @@ visualizeIteration = False
 drawLogoSearchWindow = False
 searchForLogo = False
 showImage = True
+onlyNecessaryTask = False
 
 
 class MyNode(Node):
@@ -36,6 +37,7 @@ class MyNode(Node):
     drawLogoSearchWindow
     searchForLogo
     showImage
+    onlyNecessaryTask
     
     class Rectangle():
         x:int
@@ -65,11 +67,13 @@ class MyNode(Node):
         self.declare_parameter('drawLogoSearchWindow', drawLogoSearchWindow)
         self.declare_parameter('searchForLogo', searchForLogo)
         self.declare_parameter('showImage', showImage)
+        self.declare_parameter('onlyNecessaryTask', onlyNecessaryTask)
         
         self.visualizeIteration = self.get_parameter('visualizeIteration').value
         self.drawLogoSearchWindow = self.get_parameter('drawLogoSearchWindow').value
         self.searchForLogo = self.get_parameter('searchForLogo').value
         self.showImage = self.get_parameter('showImage').value
+        self.onlyNecessaryTask = self.get_parameter('onlyNecessaryTask').value
         
         self.main_player_detection_counter = 0    
         self.main_player_detection_out = 0
@@ -101,7 +105,7 @@ class MyNode(Node):
         
         self.publish_msgs(image, person_face_list)
         
-        if self.showImage:
+        if self.showImage and not self.onlyNecessaryTask:
             cv2.imshow("Output image", image)
             cv2.waitKey(1)
 		
@@ -290,31 +294,33 @@ class MyNode(Node):
                 proba = preds[j]
                 name = self.le.classes_[j] 
 
-                gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	                
-                # Draw the bounding box of the face on image
-                color = self.person_color_mapper[name]
-                
-                text = "{}: {:.2f}%".format(name, proba * 100)
-                y = startY - 10 if startY - 10 > 10 else startY + 10
-                cv2.rectangle(image, (startX, startY), (endX, endY),color, 2)
-                cv2.putText(image, text, (startX, y),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)  
+                if not self.onlyNecessaryTask:
+                    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	                    
+                    # Draw the bounding box of the face on image
+                    color = self.person_color_mapper[name]
+                    
+                    text = "{}: {:.2f}%".format(name, proba * 100)
+                    y = startY - 10 if startY - 10 > 10 else startY + 10
+                    cv2.rectangle(image, (startX, startY), (endX, endY),color, 2)
+                    cv2.putText(image, text, (startX, y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)  
 
-                face = self.Rectangle()
-                face.x = int(startX)
-                face.y = int(startY)
-                face.w = int(endX - startX)
-                face.h = int(endY - startY)
-        
-                # Searching for logo under person face
-                if self.searchForLogo:
-                    logo, image = self.find_logo(image, gray, face)
-                else:
-                    logo = None
-                
-                person_face_elem = self.pack_person_data_to_msg(name, face, logo)
-                person_face_list.append(person_face_elem)
+                    face = self.Rectangle()
+                    face.x = int(startX)
+                    face.y = int(startY)
+                    face.w = int(endX - startX)
+                    face.h = int(endY - startY)
+            
+                    # Searching for logo under person face
+                    if self.searchForLogo:
+                        logo, image = self.find_logo(image, gray, face)
+                    else:
+                        logo = None
+                    
+                    person_face_elem = self.pack_person_data_to_msg(name, face, logo)
+                    person_face_list.append(person_face_elem)
+                    
                 person_names_list.append(name)
 		
         return image, person_face_list, person_names_list
@@ -336,12 +342,15 @@ class MyNode(Node):
 	
     def publish_msgs(self, image, person_face_list):
         """ Publishing msgs """
-        self.image_pub.publish(self.cv_bridge.cv2_to_imgmsg(image))
         self.main_player_detection_pub.publish(self.main_player_detection_msg)
+        
+        # when other message should be published -> need to be moved out from this section
+        if not self.onlyNecessaryTask:
+            self.image_pub.publish(self.cv_bridge.cv2_to_imgmsg(image))
 
-        person_face_list_msg = PersonFaceList()
-        person_face_list_msg.list = person_face_list
-        self.person_face_list_pub.publish(person_face_list_msg)
+            person_face_list_msg = PersonFaceList()
+            person_face_list_msg.list = person_face_list
+            self.person_face_list_pub.publish(person_face_list_msg)
             
 def main(args=None):
     rclpy.init(args=args)
