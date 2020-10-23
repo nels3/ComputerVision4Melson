@@ -92,7 +92,7 @@ class MyNode(Node):
     def init_hand_detector(self):
         detectorFullPath = os.path.sep.join([dir_path, detector_name])
         self.detector = dlib.simple_object_detector(detectorFullPath)
-        self.scale_factor = 2.0
+        self.scale_factor = 1.0
         self.size, self.center_x, self.center_y = 0, 0, 0
         self.frame_counter = 0
         self.result = 0
