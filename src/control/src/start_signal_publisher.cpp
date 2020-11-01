@@ -1,7 +1,7 @@
 #include <chrono>
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
-#include "custom_srv_and_msg/msg/control.hpp" 
+#include "custom_msg_and_srv/msg/control.hpp" 
 #include <string>
 
 using namespace std::chrono_literals;
@@ -15,20 +15,20 @@ public:
          this->declare_parameter<int>("start", 1);
          get_parameter<int>("start", start_);
          
-         control_pub = this->create_publisher<control::msg::Control>(topic, 10);
+         control_pub = this->create_publisher<custom_msg_and_srv::msg::Control>(topic, 10);
          
          timer_ = this->create_wall_timer(500ms, std::bind(&StartNode::timer_callback, this));
         
     }
 private:
     void timer_callback(){
-         auto message = control::msg::Control();                             
+         auto message = custom_msg_and_srv::msg::Control();                             
          message.start = start_;                                     
          control_pub->publish(message);
     }
   
      rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<control::msg::Control>::SharedPtr control_pub;
+    rclcpp::Publisher<custom_msg_and_srv::msg::Control>::SharedPtr control_pub;
     int start_;
     
 };
